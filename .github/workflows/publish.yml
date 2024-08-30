@@ -1,11 +1,10 @@
-# This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
-# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
+# This workflow will build a package using Maven and then publish it to maven central
 
 name: Publish Maven Package
 
 on:
   release:
-    types: [created]
+    types: [ created ]
 
 jobs:
   build:
@@ -22,13 +21,15 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+          server-id: central # Value of the distributionManagement/repository/id field of the pom.xml
+          server-username: OSSRH_USERNAME
+          server-password: OSSRH_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           settings-path: ${{ github.workspace }} # location for the settings.xml file
 
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
-
-      - name: Publish to GitHub Packages Apache Maven
-        run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+      - name: Publish to Maven Central
+        run: mvn --no-transfer-progress --batch-mode deploy -s $GITHUB_WORKSPACE/settings.xml # Change to deploy when ready
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}

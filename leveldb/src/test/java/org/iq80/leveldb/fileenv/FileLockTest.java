@@ -29,13 +29,13 @@ import static org.testng.Assert.assertTrue;
 public class FileLockTest
 {
     @Test
-    public void testCanDeleteFileAfterUnlock() throws IOException
+    public void testNoLockAfterUnlock() throws IOException
     {
         File databaseDir = FileUtils.createTempDir("leveldb");
         File lock1 = new File(databaseDir, "LOCK");
         FileLock lock = FileLock.tryLock(lock1);
         lock.release();
-        assertTrue(lock1.delete());
+        assertFalse(lock1.exists());
         assertTrue(databaseDir.delete());
         assertFalse(databaseDir.exists());
     }
@@ -57,7 +57,7 @@ public class FileLockTest
     }
 
     @Test
-    public void testCanDeleteFileAfterLockFailure() throws IOException
+    public void testNoLockAfterLockFailure() throws IOException
     {
         File databaseDir = FileUtils.createTempDir("leveldb");
         File lock1 = new File(databaseDir, "LOCK");
@@ -70,7 +70,7 @@ public class FileLockTest
             //expected
         }
         lock.release();
-        assertTrue(lock1.delete());
+        assertFalse(lock1.exists());
         assertTrue(databaseDir.delete());
         assertFalse(databaseDir.exists());
     }

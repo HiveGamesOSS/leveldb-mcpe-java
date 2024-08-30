@@ -82,6 +82,9 @@ class FileLock implements DbLock
         catch (IOException e) {
             throw new DBException(e);
         }
+        finally {
+            lockFile.delete();
+        }
     }
 
     @Override
